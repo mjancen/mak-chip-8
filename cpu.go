@@ -30,6 +30,7 @@ type CPU struct {
 func newCPU() *CPU {
 	cpu := CPU{
 		PC:     0x200,
+		SP:		^uint16(0), //SP = uint16(0) - 1 represents empty stack
 		stack:  make([]uint16, 16),
 		V:      make([]uint8, 16),
 		mem: make([]uint8, 4096),
@@ -75,19 +76,16 @@ func (cpu *CPU) decodeAndExec(opcode uint16) {
 		cpu.PC = opcode & 0xFFF
 	case opcode & 0x2000 != 0:
 		log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
-		cpu.stack[cpu.SP] = cpu.PC
 		cpu.SP++
-		if int(cpu.SP) == len(cpu.stack) {
-			fmt.Printf("Stack overflow.")
-			os.Exit(1)
-		}
+		cpu.stack[cpu.SP] = cpu.PC
 		cpu.PC = opcode & 0xFFF
 	case opcode & 0x00EE != 0:
 		log.Debugf("%x - return from function \n", opcode)
 		cpu.PC = cpu.stack[cpu.SP]
 		cpu.SP--
 	default:
-		log.Fatalf("Unknown opcode %x\n", opcode)
+		// change later to exit on unknown opcode
+		log.Debugf("Unknown opcode %x\n", opcode)
 		cpu.PC += 2
 	}
 }
