@@ -70,19 +70,58 @@ func (cpu CPU) fetchOp() uint16 {
 }
 
 func (cpu *CPU) decodeAndExec(opcode uint16) {
-	switch {
-	case opcode & 0x1000 != 0:
+	switch opcode & 0xF000 {
+	case 0:
+		switch opcode & 0xFF {
+		case 0xE0:
+			// clear screen
+		case 0xEE:
+			log.Debugf("%x - return from function \n", opcode)
+			cpu.PC = cpu.stack[cpu.SP]
+			cpu.SP--
+		}
+	case 0x1000:
 		log.Debugf("%x - jump to address %x\n", opcode, opcode & 0xFFF)
 		cpu.PC = opcode & 0xFFF
-	case opcode & 0x2000 != 0:
+	case 0x2000:
 		log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
 		cpu.SP++
-		cpu.stack[cpu.SP] = cpu.PC
-		cpu.PC = opcode & 0xFFF
-	case opcode & 0x00EE != 0:
-		log.Debugf("%x - return from function \n", opcode)
-		cpu.PC = cpu.stack[cpu.SP]
-		cpu.SP--
+	case opcode & 0x3000:
+		log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
+		if cpu.V[(opcode & 0x0F00) >> 8] == uint8(opcode & 0xFF) {
+			cpu.PC += 4
+		} else {
+			cpu.PC += 2
+		}
+	case opcode & 0x4000:
+		log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
+		if cpu.V[(opcode & 0x0F00) >> 8] != uint8(opcode & 0xFF) {
+			cpu.PC += 4
+		} else {
+			cpu.PC += 2
+		}
+	// switch {
+	// case opcode & 0x1000 != 0:
+	// 	log.Debugf("%x - jump to address %x\n", opcode, opcode & 0xFFF)
+	// 	cpu.PC = opcode & 0xFFF
+	// case opcode & 0x2000 != 0:
+	// 	log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
+	// 	cpu.SP++
+	// 	cpu.stack[cpu.SP] = cpu.PC
+	// 	cpu.PC = opcode & 0xFFF
+	// case opcode == 0x00EE:
+	// 	log.Debugf("%x - return from function \n", opcode)
+	// 	cpu.PC = cpu.stack[cpu.SP]
+	// 	cpu.SP--
+	// case opcode & 0x3000 != 0:
+
+	// 	log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
+	// 	if cpu.V[(opcode & 0x0F00) >> 8] == uint8(opcode & 0xFF) {
+	// 		cpu.PC += 4
+	// 	} else {
+	// 		cpu.PC += 2
+	// 	}
+	
 	default:
 		// change later to exit on unknown opcode
 		log.Debugf("Unknown opcode %x\n", opcode)
