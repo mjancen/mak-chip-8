@@ -75,6 +75,7 @@ func (cpu *CPU) decodeAndExec(opcode uint16) {
 		switch opcode & 0xFF {
 		case 0xE0:
 			// clear screen
+			cpu.PC += 2
 		case 0xEE:
 			log.Debugf("%x - return from function \n", opcode)
 			cpu.PC = cpu.stack[cpu.SP]
@@ -108,7 +109,35 @@ func (cpu *CPU) decodeAndExec(opcode uint16) {
 			cpu.PC += 2
 		}
 	case 0x6000:
+		log.Debugf("%x - set Vx to NN \n", opcode)
 		cpu.V[(opcode & 0x0F00) >> 8] = uint8(opcode & 0xFF)
+		cpu.PC += 2
+	case 0x7000:
+		log.Debugf("%x - add NN to Vx \n", opcode)
+		cpu.V[(opcode & 0x0F00) >> 8] += uint8(opcode & 0xFF)
+		cpu.PC += 2
+	case 0x8000:
+		switch opcode & 0x000F {
+		case 0:
+			log.Debugf("%x - set Vx to value of Vy \n", opcode)
+			cpu.V[(opcode & 0x0F00) >> 8] = cpu.V[(opcode & 0x0F0) >> 4]
+			cpu.PC += 2
+		case 1:
+			log.Debugf("%x - set Vx to Vx OR Vy \n", opcode)
+			cpu.V[(opcode & 0x0F00) >> 8] = cpu.V[(opcode & 0x0F00) >> 8] |
+											cpu.V[(opcode & 0x0F0) >> 4]
+			cpu.PC += 2
+		case 2:
+			log.Debugf("%x - set Vx to Vx OR Vy \n", opcode)
+			cpu.V[(opcode & 0x0F00) >> 8] = cpu.V[(opcode & 0x0F00) >> 8] &
+											cpu.V[(opcode & 0x0F0) >> 4]
+			cpu.PC += 2
+		case 3:
+			log.Debugf("%x - set Vx to Vx OR Vy \n", opcode)
+			cpu.V[(opcode & 0x0F00) >> 8] = cpu.V[(opcode & 0x0F00) >> 8] ^
+											cpu.V[(opcode & 0x0F0) >> 4]
+			cpu.PC += 2
+		}
 	default:
 		// change later to exit on unknown opcode
 		log.Debugf("Unknown opcode %x\n", opcode)
