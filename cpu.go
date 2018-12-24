@@ -86,14 +86,14 @@ func (cpu *CPU) decodeAndExec(opcode uint16) {
 	case 0x2000:
 		log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
 		cpu.SP++
-	case opcode & 0x3000:
+	case 0x3000:
 		log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
 		if cpu.V[(opcode & 0x0F00) >> 8] == uint8(opcode & 0xFF) {
 			cpu.PC += 4
 		} else {
 			cpu.PC += 2
 		}
-	case opcode & 0x4000:
+	case 0x4000:
 		log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
 		if cpu.V[(opcode & 0x0F00) >> 8] != uint8(opcode & 0xFF) {
 			cpu.PC += 4
