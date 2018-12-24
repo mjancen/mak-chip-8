@@ -100,28 +100,6 @@ func (cpu *CPU) decodeAndExec(opcode uint16) {
 		} else {
 			cpu.PC += 2
 		}
-	// switch {
-	// case opcode & 0x1000 != 0:
-	// 	log.Debugf("%x - jump to address %x\n", opcode, opcode & 0xFFF)
-	// 	cpu.PC = opcode & 0xFFF
-	// case opcode & 0x2000 != 0:
-	// 	log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
-	// 	cpu.SP++
-	// 	cpu.stack[cpu.SP] = cpu.PC
-	// 	cpu.PC = opcode & 0xFFF
-	// case opcode == 0x00EE:
-	// 	log.Debugf("%x - return from function \n", opcode)
-	// 	cpu.PC = cpu.stack[cpu.SP]
-	// 	cpu.SP--
-	// case opcode & 0x3000 != 0:
-
-	// 	log.Debugf("%x - skip next opcode if Vx == NN \n", opcode)
-	// 	if cpu.V[(opcode & 0x0F00) >> 8] == uint8(opcode & 0xFF) {
-	// 		cpu.PC += 4
-	// 	} else {
-	// 		cpu.PC += 2
-	// 	}
-	
 	default:
 		// change later to exit on unknown opcode
 		log.Debugf("Unknown opcode %x\n", opcode)
