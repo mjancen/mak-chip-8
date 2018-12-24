@@ -28,12 +28,11 @@ func main() {
 	var opcode uint16
 
 	for {
-		fmt.Printf("PC: %x ", cpu.PC)
+		log.Debugf("PC: %x\n", cpu.PC)
 		opcode = cpu.fetchOp()
-		// fmt.Print(opcode)
 		cpu.decodeAndExec(opcode)
 		if cpu.PC > maxMem - 2 {
-			fmt.Println("End loop.")
+			log.Debugf("PC has reached end of memory, exiting loop.")
 			break
 		}
 	}

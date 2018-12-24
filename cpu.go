@@ -71,22 +71,23 @@ func (cpu CPU) fetchOp() uint16 {
 func (cpu *CPU) decodeAndExec(opcode uint16) {
 	switch {
 	case opcode & 0x1000 != 0:
-		fmt.Printf("jump to address %x\n", opcode & 0xFFF)
+		log.Debugf("%x - jump to address %x\n", opcode, opcode & 0xFFF)
 		cpu.PC = opcode & 0xFFF
 	case opcode & 0x2000 != 0:
-		fmt.Printf("Call function at %x\n", opcode & 0xFFF)
+		log.Debugf("%x - call function at %x\n", opcode, opcode & 0xFFF)
 		cpu.stack[cpu.SP] = cpu.PC
 		cpu.SP++
 		if int(cpu.SP) == len(cpu.stack) {
-			fmt.Printf("STACK OVERFLOW")
+			fmt.Printf("Stack overflow.")
 			os.Exit(1)
 		}
 		cpu.PC = opcode & 0xFFF
 	case opcode & 0x00EE != 0:
+		log.Debugf("%x - return from function \n", opcode)
 		cpu.PC = cpu.stack[cpu.SP]
 		cpu.SP--
 	default:
-		fmt.Printf("Unknown opcode %x\n", opcode)
+		log.Fatalf("Unknown opcode %x\n", opcode)
 		cpu.PC += 2
 	}
 }
